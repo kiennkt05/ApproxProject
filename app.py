@@ -81,7 +81,6 @@ def format_log_entry(entry: dict) -> str:
     step = entry.get("step", "")
 
     if step == "eval_f":
-        # Try to handle different possible key names for x and f(x)
         if "point" in entry and "value" in entry:
             return f"Evaluate $f({entry['point']:.6f}) = {entry['value']:.6f}$"
         elif "x_i" in entry and "f(x_i)" in entry:
@@ -130,6 +129,24 @@ def format_log_entry(entry: dict) -> str:
         return f"Gram matrix entry $G_{{{entry.get('i', '')},{entry.get('j', '')}}} = {entry.get('value', ''):.6f}$"
     elif step == "b_entry":
         return f"Right-hand side entry $b_{{{entry.get('i', '')}}} = {entry.get('value', ''):.6f}$"
+    elif step == "normalize":
+        i = entry.get("i", "")
+        norm = entry.get("norm", "")
+        phi_i = entry.get("phi_i", "")
+        try:
+            norm_fmt = f"{float(norm):.6f}"
+        except Exception:
+            norm_fmt = str(norm)
+        return f"Normalize $\\varphi_{{{i}}}(x)$: $\\|p_{i}\\| = {norm_fmt}$, $\\varphi_{{{i}}}(x) = $ `{phi_i}`"
+    elif step == "subtract_projection":
+        i = entry.get("i", "")
+        j = entry.get("j", "")
+        proj_coeff = entry.get("proj_coeff", "")
+        try:
+            proj_coeff_fmt = f"{float(proj_coeff):.6f}"
+        except Exception:
+            proj_coeff_fmt = str(proj_coeff)
+        return f"Subtract projection: $p_{{{i}}} \\gets p_{{{i}}} - ({proj_coeff_fmt})\\varphi_{{{j}}}(x)$"
     else:
         # Fallback for unknown or incomplete log entries
         return str(entry)
